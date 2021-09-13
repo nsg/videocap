@@ -30,7 +30,7 @@ analyzer() {
 
     echo "ANALYZE: $file"
     if $SCRIPT_DIR/analyze.py "$RAMDISK" "$file"; then
-        echo "Found movement, push image"
+        echo "Found movement in $file, push image"
         UNT="$(date +%s%N)"
         mv $RAMDISK/{match,$UNT}.jpg
         $SCRIPT_DIR/push-nextcloud.sh $RAMDISK/$UNT.jpg && rm $RAMDISK/$UNT.jpg
