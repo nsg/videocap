@@ -29,11 +29,11 @@ analyzer() {
     local file="$1"
 
     echo "ANALYZE: $file"
-    if ./analyze.py "$RAMDISK" "$file"; then
+    if $SCRIPT_DIR/analyze.py "$RAMDISK" "$file"; then
         echo "Found movement, push image"
         UNT="$(date +%s%N)"
         mv $RAMDISK/{match,$UNT}.jpg
-        ./push-nextcloud.sh $RAMDISK/$UNT.jpg
+        $SCRIPT_DIR/push-nextcloud.sh $RAMDISK/$UNT.jpg
     fi
 }
 
