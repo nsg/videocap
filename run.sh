@@ -1,6 +1,7 @@
 #!/bin/bash
 
-. $1
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+. $SCRIPT_DIR/$1
 
 make_ramdisk() {
     sudo mkdir -p $RAMDISK
