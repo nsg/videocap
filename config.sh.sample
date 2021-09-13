@@ -1,0 +1,4 @@
+export RAMDISK=/mnt/ramdisk
+export NEXTCLOUD_SERVER="nextcloud.example.com"
+export NEXTCLOUD_TOKEN="seCRetTOken"
+export RTSP_CAMERA_SOURCE=127.0.0.1:5554/s0
