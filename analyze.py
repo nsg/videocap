@@ -46,7 +46,8 @@ movement = False
 for contour in contours:
     x, y, w, h = cv2.boundingRect(contour)
     cv2.rectangle(frame, (x*4, y*4), (x*4+w*4, y*4+h*4), (0, 255, 0), 2)
-    movement = True
+    if y > 10:
+        movement = True
 
 if movement:
     cv2.imwrite(f"{PATH}/match.jpg", frame)
