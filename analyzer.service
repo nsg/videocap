@@ -1,0 +1,8 @@
+[Unit]
+Description=Videocap Analyzer %i
+
+[Service]
+ExecStart=/opt/videocap/run.sh config-%i.sh analyzer
+
+[Install]
+WantedBy=multi-user.target

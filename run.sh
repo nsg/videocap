@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. config.sh
+. $1
 
 make_ramdisk() {
     sudo mkdir -p $RAMDISK
@@ -42,9 +42,9 @@ watch_for_new_file() {
 
 [ ! -d $RAMDISK ] && make_ramdisk
 
-if [ "x$1" == xrecorder ]; then
+if [ "x$2" == xrecorder ]; then
     recorder
-elif [ "x$1" == "xanalyzer" ]; then
+elif [ "x$2" == "xanalyzer" ]; then
     while true; do
         analyzer "$(watch_for_new_file)"
     done
