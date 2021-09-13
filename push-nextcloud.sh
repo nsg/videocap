@@ -11,4 +11,4 @@ PASSWORD=
 URL="https://$NEXTCLOUD_SERVER/public.php/webdav"
 FILEDEST="${FILE##*/}"
 
-curl -T "$FILE" -u "$NEXTCLOUD_TOKEN":"$PASSWORD" -H "X-Requested-With: XMLHttpRequest" "$URL/$FILEDEST"
+curl -sT "$FILE" -u "$NEXTCLOUD_TOKEN":"$PASSWORD" -H "X-Requested-With: XMLHttpRequest" "$URL/$FILEDEST"
