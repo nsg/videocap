@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Send files to a File Drop 
 # Usage:
