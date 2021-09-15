@@ -34,6 +34,10 @@ analyzer() {
         UNT="$(date +%s%N)"
         mv $RAMDISK/{match,$UNT}.jpg
         $SCRIPT_DIR/push-nextcloud.sh $RAMDISK/$UNT.jpg && rm $RAMDISK/$UNT.jpg
+
+        # Save the last nine files that triggers movement for debug
+        mkdir -p /movements
+        cp "$RAMDISK/$file" /movements
     fi
 }
 
