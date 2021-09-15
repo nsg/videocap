@@ -50,7 +50,6 @@ def diff_frames(frame1, frame2, out_frame):
 
 CAPTURE_BUFFER = capture_video(FILEPATH)
 CAPTURE_BUFFER_SIZE = len(CAPTURE_BUFFER)
-print(f"Found {CAPTURE_BUFFER_SIZE} frames in {FILEPATH}")
 
 frame = CAPTURE_BUFFER[0]
 
@@ -69,8 +68,9 @@ for f1 in range(0, CAPTURE_BUFFER_SIZE, 30):
         diffed_segments += 1
 
 if diffed_segments > 3:
-    print(f"Found {diffed_segments} segments with movements")
     cv2.imwrite(f"{PATH}/match.jpg", frame)
     sys.exit(0)
+
+print(f"I found {CAPTURE_BUFFER_SIZE} frames in {FILEPATH}, with {diffed_segments} segments with movements.")
 
 sys.exit(1)
