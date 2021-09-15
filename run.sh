@@ -41,7 +41,10 @@ watch_for_new_file() {
     inotifywait -qe close_write --format "%f" $RAMDISK
 }
 
-[ ! -d $RAMDISK ] && make_ramdisk
+if ! mount | grep -q "$RAMDISK"; then
+    echo "Ramdisk not found, re-create it"
+    make_ramdisk
+fi
 
 if [ "x$2" == xrecorder ]; then
     recorder
