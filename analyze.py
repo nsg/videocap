@@ -3,8 +3,8 @@
 import sys
 import cv2
 
-PATH=sys.argv[1]
-FILE=sys.argv[2]
+PATH = sys.argv[1]
+FILE = sys.argv[2]
 FILEPATH = f"{PATH}/{FILE}"
 
 
@@ -12,7 +12,7 @@ def capture_video(file_path):
     capture_buffer = []
     cap = cv2.VideoCapture(file_path)
 
-    while(cap.isOpened()):
+    while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
@@ -36,17 +36,22 @@ def diff_frames(frame1, frame2, out_frame):
     frame_delta = cv2.absdiff(frame1, frame2)
     thresholded = cv2.threshold(frame_delta, 25, 255, cv2.THRESH_BINARY)[1]
     thresholded = cv2.dilate(thresholded, None, iterations=2)
-    (contours, _) = cv2.findContours(thresholded.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    (contours, _) = cv2.findContours(
+        thresholded.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+    )
 
     movement = False
 
     for contour in contours:
         x, y, w, h = cv2.boundingRect(contour)
-        cv2.rectangle(out_frame, (x*4, y*4), (x*4+w*4, y*4+h*4), (0, 255, 0), 2)
+        cv2.rectangle(
+            out_frame, (x * 4, y * 4), (x * 4 + w * 4, y * 4 + h * 4), (0, 255, 0), 2
+        )
         if y > 10:
             movement = True
 
     return movement
+
 
 CAPTURE_BUFFER = capture_video(FILEPATH)
 CAPTURE_BUFFER_SIZE = len(CAPTURE_BUFFER)
