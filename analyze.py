@@ -67,10 +67,10 @@ for f1 in range(0, CAPTURE_BUFFER_SIZE, 30):
     if frame_diff:
         diffed_segments += 1
 
+print(f"{FILEPATH}: {CAPTURE_BUFFER_SIZE} frames, {diffed_segments} movements")
+
 if diffed_segments > 3:
     cv2.imwrite(f"{PATH}/match.jpg", frame)
     sys.exit(0)
-
-print(f"I found {CAPTURE_BUFFER_SIZE} frames in {FILEPATH}, with {diffed_segments} segments with movements.")
 
 sys.exit(1)
