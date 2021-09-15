@@ -7,34 +7,37 @@ PATH=sys.argv[1]
 FILE=sys.argv[2]
 FILEPATH = f"{PATH}/{FILE}"
 
-cap = cv2.VideoCapture(FILEPATH)
 
-CAPTURE_BUFFER=[]
+def capture_video(file_path):
+    capture_buffer = []
+    cap = cv2.VideoCapture(file_path)
 
-while(cap.isOpened()):
-    ret, frame = cap.read()
-    if not ret:
-        break
+    while(cap.isOpened()):
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-    CAPTURE_BUFFER.append(frame)
+        capture_buffer.append(frame)
 
-cap.release()
+    cap.release()
+    return capture_buffer
 
+
+def get_norm_frame(buffer, offset):
+    size = (480, 270)
+    frame = buffer[offset]
+    frame = cv2.resize(frame, size)
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    frame = cv2.GaussianBlur(frame, (5, 5), 0)
+    return frame
+
+CAPTURE_BUFFER = capture_video(FILEPATH)
 print(f"Found {len(CAPTURE_BUFFER)} frames in {FILEPATH}")
-
-SIZE = (480, 270)
 
 frame = CAPTURE_BUFFER[0]
 
-first_frame = CAPTURE_BUFFER[0]
-first_frame = cv2.resize(first_frame, SIZE)
-first_frame = cv2.cvtColor(first_frame, cv2.COLOR_BGR2GRAY)
-first_frame = cv2.GaussianBlur(first_frame, (5, 5), 0)
-
-middle_frame = CAPTURE_BUFFER[len(CAPTURE_BUFFER)//2]
-middle_frame = cv2.resize(middle_frame, SIZE)
-middle_frame = cv2.cvtColor(middle_frame, cv2.COLOR_BGR2GRAY)
-middle_frame = cv2.GaussianBlur(middle_frame, (5, 5), 0)
+first_frame = get_norm_frame(CAPTURE_BUFFER, 0)
+middle_frame = get_norm_frame(CAPTURE_BUFFER, len(CAPTURE_BUFFER)//2)
 
 frame_delta = cv2.absdiff(first_frame, middle_frame)
 thresholded = cv2.threshold(frame_delta, 25, 255, cv2.THRESH_BINARY)[1]
