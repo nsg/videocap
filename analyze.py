@@ -85,7 +85,7 @@ def diff_frames(f1, f2, out_frame):
                 (0, 255, 0),
                 2,
             )
-            if y > 10:
+            if y > 12:
                 movement = True
                 # debug
                 # im_v = cv2.vconcat([crop_frame1, crop_frame2])
