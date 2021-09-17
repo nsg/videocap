@@ -2,6 +2,7 @@
 
 import sys
 import cv2
+import numpy
 
 PATH = sys.argv[1]
 FILE = sys.argv[2]
@@ -32,8 +33,15 @@ def get_norm_frame(buffer, offset):
     return frame
 
 
-def diff_frames(frame1, frame2, out_frame):
-    frame_delta = cv2.absdiff(frame1, frame2)
+def diff_frames(f1, f2, out_frame):
+
+    norm_frame1 = get_norm_frame(CAPTURE_BUFFER, f1)
+    norm_frame2 = get_norm_frame(CAPTURE_BUFFER, f2)
+
+    frame1 = CAPTURE_BUFFER[f1]
+    frame2 = CAPTURE_BUFFER[f2]
+
+    frame_delta = cv2.absdiff(norm_frame1, norm_frame2)
     thresholded = cv2.threshold(frame_delta, 25, 255, cv2.THRESH_BINARY)[1]
     thresholded = cv2.dilate(thresholded, None, iterations=2)
     (contours, _) = cv2.findContours(
@@ -41,14 +49,47 @@ def diff_frames(frame1, frame2, out_frame):
     )
 
     movement = False
-
     for contour in contours:
         x, y, w, h = cv2.boundingRect(contour)
-        cv2.rectangle(
-            out_frame, (x * 4, y * 4), (x * 4 + w * 4, y * 4 + h * 4), (0, 255, 0), 2
-        )
-        if y > 10:
-            movement = True
+
+        crop_frame1 = frame1[y * 4 : y * 4 + h * 4, x * 4 : x * 4 + w * 4]
+        crop_frame2 = frame2[y * 4 : y * 4 + h * 4, x * 4 : x * 4 + w * 4]
+
+        avg_color_per_row1 = numpy.average(crop_frame1, axis=0)
+        avg_color1 = numpy.average(avg_color_per_row1, axis=0)
+        avg_color_per_row2 = numpy.average(crop_frame2, axis=0)
+        avg_color2 = numpy.average(avg_color_per_row2, axis=0)
+
+        color_channel_1 = avg_color1[0] - avg_color2[0]
+        color_channel_2 = avg_color1[1] - avg_color2[1]
+        color_channel_3 = avg_color1[2] - avg_color2[2]
+
+        color_channel_diff_tr = 25
+        if (
+            color_channel_1 > color_channel_diff_tr
+            or color_channel_2 > color_channel_diff_tr
+            or color_channel_3 > color_channel_diff_tr
+        ):
+            cv2.rectangle(
+                out_frame,
+                (x * 4, y * 4),
+                (x * 4 + w * 4, y * 4 + h * 4),
+                (0, 255, 0),
+                2,
+            )
+            if y > 10:
+                movement = True
+                # debug
+                #im_v = cv2.vconcat([crop_frame1, crop_frame2])
+                #cv2.imwrite(f"{PATH}/debug.jpg", im_v)
+        else:
+            cv2.rectangle(
+                out_frame,
+                (x * 4, y * 4),
+                (x * 4 + w * 4, y * 4 + h * 4),
+                (0, 0, 255),
+                2,
+            )
 
     return movement
 
@@ -64,10 +105,7 @@ for f1 in range(0, CAPTURE_BUFFER_SIZE, 30):
     if f2 >= CAPTURE_BUFFER_SIZE:
         f2 = CAPTURE_BUFFER_SIZE - 1
 
-    frame1 = get_norm_frame(CAPTURE_BUFFER, f1)
-    frame2 = get_norm_frame(CAPTURE_BUFFER, f2)
-
-    frame_diff = diff_frames(frame1, frame2, frame)
+    frame_diff = diff_frames(f1, f2, frame)
 
     if frame_diff:
         diffed_segments += 1
