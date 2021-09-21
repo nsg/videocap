@@ -135,7 +135,7 @@ print(
     f"{FILEPATH}: {CAPTURE_BUFFER_SIZE} frames, {diffed_segments} move, night:{NIGHT_VISION},{IS_EVENING_OR_NIGHT}"
 )
 
-if NIGHT_VISION and diffed_segments > 0 and not IS_EVENING_OR_NIGHT:
+if NIGHT_VISION and diffed_segments > 0 and IS_EVENING_OR_NIGHT:
     cv2.imwrite(f"{PATH}/match.jpg", frame)
     sys.exit(0)
 elif diffed_segments > 3:
