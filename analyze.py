@@ -3,6 +3,7 @@
 import sys
 import cv2
 import numpy
+import datetime
 
 PATH = sys.argv[1]
 FILE = sys.argv[2]
@@ -113,6 +114,12 @@ if int(avgcol[0]) == int(avgcol[1]) and int(avgcol[0]) == int(avgcol[2]):
 else:
     NIGHT_VISION = False
 
+now = datetime.datetime.now()
+if now.hour < 8 or now.hour > 19:
+    IS_EVENING_OR_NIGHT = True
+else:
+    IS_EVENING_OR_NIGHT = False
+
 diffed_segments = 0
 for f1 in range(0, CAPTURE_BUFFER_SIZE, 30):
     f2 = f1 + 14
@@ -125,10 +132,10 @@ for f1 in range(0, CAPTURE_BUFFER_SIZE, 30):
         diffed_segments += 1
 
 print(
-    f"{FILEPATH}: {CAPTURE_BUFFER_SIZE} frames, {diffed_segments} move, night:{NIGHT_VISION}"
+    f"{FILEPATH}: {CAPTURE_BUFFER_SIZE} frames, {diffed_segments} move, night:{NIGHT_VISION},{IS_EVENING_OR_NIGHT}"
 )
 
-if NIGHT_VISION and diffed_segments > 0:
+if NIGHT_VISION and diffed_segments > 0 and not IS_EVENING_OR_NIGHT:
     cv2.imwrite(f"{PATH}/match.jpg", frame)
     sys.exit(0)
 elif diffed_segments > 3:
