@@ -1,13 +1,8 @@
-#!/usr/bin/env python3
-
 import sys
+import os
 import cv2
 import numpy
 import datetime
-
-PATH = sys.argv[1]
-FILE = sys.argv[2]
-FILEPATH = f"{PATH}/{FILE}"
 
 
 def capture_video(file_path):
@@ -39,7 +34,7 @@ def avg_color(frame):
     return numpy.average(avgcol_f, axis=0)
 
 
-def diff_frames(f1, f2, out_frame):
+def diff_frames(CAPTURE_BUFFER, NIGHT_VISION, f1, f2, out_frame):
 
     norm_frame1 = get_norm_frame(CAPTURE_BUFFER, f1)
     norm_frame2 = get_norm_frame(CAPTURE_BUFFER, f2)
@@ -103,43 +98,56 @@ def diff_frames(f1, f2, out_frame):
     return movement
 
 
-CAPTURE_BUFFER = capture_video(FILEPATH)
-CAPTURE_BUFFER_SIZE = len(CAPTURE_BUFFER)
+def main():
+    PATH = os.environ["VIDEOCAP_DATA"]
+    FILE = sys.argv[1]
+    FILEPATH = f"{PATH}/{FILE}"
 
-frame = CAPTURE_BUFFER[0]
+    CAPTURE_BUFFER = capture_video(FILEPATH)
+    CAPTURE_BUFFER_SIZE = len(CAPTURE_BUFFER)
 
-avgcol = avg_color(frame)
-if int(avgcol[0]) == int(avgcol[1]) and int(avgcol[0]) == int(avgcol[2]):
-    NIGHT_VISION = True
-else:
-    NIGHT_VISION = False
+    frame = CAPTURE_BUFFER[0]
 
-now = datetime.datetime.now()
-if now.hour < 8 or now.hour > 19:
-    IS_EVENING_OR_NIGHT = True
-else:
-    IS_EVENING_OR_NIGHT = False
+    avgcol = avg_color(frame)
+    if int(avgcol[0]) == int(avgcol[1]) and int(avgcol[0]) == int(avgcol[2]):
+        NIGHT_VISION = True
+    else:
+        NIGHT_VISION = False
 
-diffed_segments = 0
-for f1 in range(0, CAPTURE_BUFFER_SIZE, 30):
-    f2 = f1 + 14
-    if f2 >= CAPTURE_BUFFER_SIZE:
-        f2 = CAPTURE_BUFFER_SIZE - 1
+    now = datetime.datetime.now()
+    if now.hour < 8 or now.hour > 19:
+        IS_EVENING_OR_NIGHT = True
+    else:
+        IS_EVENING_OR_NIGHT = False
 
-    frame_diff = diff_frames(f1, f2, frame)
+    diffed_segments = 0
+    for f1 in range(0, CAPTURE_BUFFER_SIZE, 30):
+        f2 = f1 + 14
+        if f2 >= CAPTURE_BUFFER_SIZE:
+            f2 = CAPTURE_BUFFER_SIZE - 1
 
-    if frame_diff:
-        diffed_segments += 1
+        frame_diff = diff_frames(CAPTURE_BUFFER, NIGHT_VISION, f1, f2, frame)
 
-print(
-    f"{FILEPATH}: {CAPTURE_BUFFER_SIZE} frames, {diffed_segments} move, night:{NIGHT_VISION},{IS_EVENING_OR_NIGHT}"
-)
+        if frame_diff:
+            diffed_segments += 1
 
-if NIGHT_VISION and diffed_segments > 0 and IS_EVENING_OR_NIGHT:
-    cv2.imwrite(f"{PATH}/match.jpg", frame)
-    sys.exit(0)
-elif diffed_segments > 3:
-    cv2.imwrite(f"{PATH}/match.jpg", frame)
-    sys.exit(0)
+    print(
+        f"{FILEPATH}: {CAPTURE_BUFFER_SIZE} frames, {diffed_segments} move, night:{NIGHT_VISION},{IS_EVENING_OR_NIGHT}"
+    )
 
-sys.exit(1)
+    EXIT_STATUS = 1
+
+    if NIGHT_VISION and diffed_segments > 0 and IS_EVENING_OR_NIGHT:
+        cv2.imwrite(f"{PATH}/match.jpg", frame)
+        print(f"{PATH}/match.jpg written")
+        EXIT_STATUS = 0
+    elif diffed_segments > 3:
+        cv2.imwrite(f"{PATH}/match.jpg", frame)
+        print(f"{PATH}/match.jpg written")
+        EXIT_STATUS = 0
+
+    sys.exit(EXIT_STATUS)
+
+
+if __name__ == "__main__":
+    main()

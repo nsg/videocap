@@ -1,9 +1,0 @@
-[Unit]
-Description=Videocap Analyzer %i
-
-[Service]
-ExecStartPre=/bin/sleep 30
-ExecStart=/opt/videocap/run.sh config-%i.sh analyzer
-
-[Install]
-WantedBy=multi-user.target

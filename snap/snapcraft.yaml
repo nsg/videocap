@@ -1,0 +1,71 @@
+name: videocap
+base: core20
+version: '0.1'
+summary: Capture and detect movements on video feeds
+description: |
+  This is my take of a simple video monitoring solution. The scope of the
+  project is quite narrow for my specific use case. Detect movements,
+  screenshot and send these images and videos offsite.
+
+grade: stable
+confinement: strict
+
+layout:
+  /var/videocap:
+    type: tmpfs
+
+apps:
+  analyzer:
+    command: bin/analyzer
+    environment:
+      VIDEOCAP_DATA: /var/videocap
+
+  analyzer-service:
+    command: bin/analyzer.sh
+    daemon: simple
+    environment:
+      VIDEOCAP_DATA: /var/videocap
+    plugs:
+      - network
+
+  ingest:
+    command: bin/ingest.sh
+    environment:
+      VIDEOCAP_DATA: /var/videocap
+
+  push-nextcloud:
+    command: bin/push-nextcloud.sh
+    plugs:
+      - network
+
+  recorder:
+    command: bin/recorder.sh
+    plugs:
+      - network
+
+parts:
+  analyzer:
+    plugin: python
+    source: analyzer
+    stage-packages:
+      - libice6
+      - libsm6
+
+  ingest:
+    plugin: dump
+    source: ingest
+
+  nextcloud:
+    plugin: dump
+    source: nextcloud
+    stage-packages:
+      - curl
+
+  services:
+    plugin: dump
+    source: services
+    stage-packages:
+      - inotify-tools
+      - libtinfo5
+    stage-snaps:
+      - ffmpeg
