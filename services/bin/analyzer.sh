@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [[ "$(snapctl get analyzer)" != "enabled" ]] && [[ "$ANALYZER" != "enabled" ]]; then
+    echo "Analytics service not enabled, shutting down service"
+    snapctl stop videocap.analyzer-service
+    exit 0
+fi
+
 RAMDISK=/var/videocap
 
 analyzer() {

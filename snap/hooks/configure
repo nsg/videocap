@@ -1,1 +1,4 @@
 #!/bin/bash
+
+snapctl restart videocap.analyzer-service
+snapctl restart videocap.recorder-service

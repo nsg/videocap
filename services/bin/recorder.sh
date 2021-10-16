@@ -9,6 +9,12 @@ RTSP_CAMERA_SOURCES="$(snapctl get rtsp-camera-sources)"
 
 [ -z "$RTSP_CAMERA_SOURCES" ] && die "Please specify an array of RTSP camera sources: snap set videocap rtsp-camera-sources='10.0.0.1:554/s0,10.0.0.2:554/s0'"
 
+if [[ "$(snapctl get recorder)" != "enabled" ]] && [[ "$RECORDER" != "enabled" ]]; then
+    echo "Recorder service not enabled, shutting down service"
+    snapctl stop videocap.recorder-service
+    exit 0
+fi
+
 # TODO: This is not a prefect solution, a single camera may fail and the script will not detect this
 for camera in $(echo $RTSP_CAMERA_SOURCES | tr ',' ' '); do
     SCORE_NAME="$(echo $camera | sed 's/[^a-z0-9]/_/g')"

@@ -18,6 +18,7 @@ apps:
   analyzer:
     command: bin/analyzer
     environment:
+      ANALYZER: enabled
       VIDEOCAP_DATA: /var/videocap
 
   analyzer-service:
@@ -40,6 +41,14 @@ apps:
 
   recorder:
     command: bin/recorder.sh
+    environment:
+      RECORDER: enabled
+    plugs:
+      - network
+
+  recorder-service:
+    command: bin/recorder.sh
+    daemon: simple
     plugs:
       - network
 
