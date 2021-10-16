@@ -1,3 +1,3 @@
 #!/bin/bash
 
-[ -e $SNAP_DATA/mask.jpg ] && cp $SNAP_DATA/mask.jpg /var/videocap
+[ -e $SNAP_DATA/mask.jpg ] && cp $SNAP_DATA/mask.jpg /var/videocap || :
