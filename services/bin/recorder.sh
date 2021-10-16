@@ -19,6 +19,8 @@ fi
 for camera in $(echo $RTSP_CAMERA_SOURCES | tr ',' ' '); do
     SCORE_NAME="$(echo $camera | sed 's/[^a-z0-9]/_/g')"
     $SNAP/command-ffmpeg.wrapper \
+        -hide_banner \
+        -loglevel error \
         -rtsp_transport tcp \
         -i rtsp://$camera \
         -reconnect 1 \
