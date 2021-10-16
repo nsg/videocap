@@ -18,6 +18,7 @@ fi
 # TODO: This is not a prefect solution, a single camera may fail and the script will not detect this
 for camera in $(echo $RTSP_CAMERA_SOURCES | tr ',' ' '); do
     SCORE_NAME="$(echo $camera | sed 's/[^a-z0-9]/_/g')"
+    mkdir -p "/var/videocap/${SCORE_NAME}"
     $SNAP/command-ffmpeg.wrapper \
         -hide_banner \
         -loglevel error \
@@ -32,7 +33,7 @@ for camera in $(echo $RTSP_CAMERA_SOURCES | tr ',' ' '); do
         -segment_format mp4 \
         -segment_wrap 10 \
         -reset_timestamps 1 \
-        "/var/videocap/${SCORE_NAME}-%01d.mp4" &
+        "/var/videocap/${SCORE_NAME}/%01d.mp4" &
 done
 
 wait
