@@ -1,3 +1,4 @@
+import os.path
 import numpy
 import cv2
 
@@ -62,9 +63,12 @@ def write(path, frame, name="match"):
     cv2.imwrite(f"{path}/{name}.jpg", frame)
 
 
-def read(path, name="match", flag=cv2.IMREAD_UNCHANGED):
+def read(path, name="match", flag=cv2.IMREAD_UNCHANGED, default_content=None):
     """ Read file to disk """
-    return cv2.imread(f"{path}/{name}.jpg", flag)
+    if os.path.exists(f"{path}/{name}.jpg"):
+        return cv2.imread(f"{path}/{name}.jpg", flag)
+    else:
+        return default_content
 
 
 def get_movement_mask(frame_sequence: list, size=(480, 270)):
@@ -97,8 +101,8 @@ def get_new_movements(frame_sequence: list, path, size=(270, 480), full_size=(19
     to classify if these are something to care about or not.
     """
 
-    old_movement_mask = read(path, "mask")
     black_img = numpy.full(size, 0, numpy.uint8)
+    old_movement_mask = read(path, "mask", default_content=black_img)
     movement_mask = get_movement_mask(frame_sequence, size)
     store_movement_mask = cv2.addWeighted(old_movement_mask, 0.99, black_img, 0.01, 0)
     movement_threshold = cv2.threshold(movement_mask, 5, 255, cv2.THRESH_BINARY)[1]
