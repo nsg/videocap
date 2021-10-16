@@ -1,6 +1,7 @@
 import numpy
 import cv2
 
+
 def capture_video(file_path):
     """ Returns a list of all frames in a video segment """
     capture_buffer = []
@@ -28,7 +29,20 @@ def avg_color(frame):
     return numpy.average(avgcol_f, axis=0)
 
 
-def get_norm_frame(buffer, offset):
+def is_greyscale(frame):
+    """
+    Compare the color channels to see if the picture is greyscale
+    
+    This is used to detect of the night mode is enabled
+    """
+
+    avgcol = avg_color(frame)
+    if int(avgcol[0]) == int(avgcol[1]) and int(avgcol[0]) == int(avgcol[2]):
+        return True
+    return False
+
+
+def get_norm_frame(frame, size=(480, 270), blur=(5, 5)):
     """
     Returns a smaller, grayscale and blurry version of a frame
     
@@ -37,9 +51,78 @@ def get_norm_frame(buffer, offset):
     Finally the image is resized to make processing faster.
     
     """
-    size = (480, 270)
-    frame = buffer[offset]
     frame = cv2.resize(frame, size)
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    frame = cv2.GaussianBlur(frame, (5, 5), 0)
+    frame = cv2.GaussianBlur(frame, blur, 0)
     return frame
+
+
+def write(path, frame, name="match"):
+    """ Write file to disk """
+    cv2.imwrite(f"{path}/{name}.jpg", frame)
+
+
+def read(path, name="match", flag=cv2.IMREAD_UNCHANGED):
+    """ Read file to disk """
+    return cv2.imread(f"{path}/{name}.jpg", flag)
+
+
+def get_movement_mask(frame_sequence: list, size=(480, 270)):
+    """
+    Detect movements in a sequence of frames, return a movement mask
+    """
+
+    movement_mask = numpy.zeros(size, dtype="uint8")
+
+    for frame_number in range(0, len(frame_sequence) - 1):
+        frame1 = get_norm_frame(frame_sequence[frame_number])
+        frame2 = get_norm_frame(frame_sequence[frame_number + 1])
+
+        frame_delta = cv2.absdiff(frame1, frame2)
+        threshold = cv2.threshold(frame_delta, 25, 255, cv2.THRESH_BINARY)[1]
+        threshold = cv2.dilate(threshold, None, iterations=2)
+        frame = cv2.bitwise_and(frame_delta, frame_delta, mask=threshold)
+
+        movement_mask = cv2.add(movement_mask, frame)
+
+    return movement_mask
+
+
+def get_new_movements(frame_sequence: list, path, size=(270, 480), full_size=(1920, 1080)):
+    """
+    Detect movements in a sequence of frames, return frame slices
+
+    This function detect movements in a frame and returns these sections of
+    the frame in a datastructure. These frames are later sent to extensions
+    to classify if these are something to care about or not.
+    """
+
+    old_movement_mask = read(path, "mask")
+    black_img = numpy.full(size, 0, numpy.uint8)
+    movement_mask = get_movement_mask(frame_sequence, size)
+    store_movement_mask = cv2.addWeighted(old_movement_mask, 0.99, black_img, 0.01, 0)
+    movement_threshold = cv2.threshold(movement_mask, 5, 255, cv2.THRESH_BINARY)[1]
+    store_movement_mask = cv2.add(store_movement_mask, movement_threshold)
+    write(path, store_movement_mask, "mask")
+
+    threshold = cv2.dilate(old_movement_mask, None, iterations=2)
+    movement_mask = cv2.bitwise_or(
+        movement_mask, movement_mask, mask=cv2.bitwise_not(threshold)
+    )
+
+    movement_mask = cv2.resize(movement_mask, full_size)
+
+    (contours, _) = cv2.findContours(
+        movement_mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+    )
+
+    movement_matches = []
+    for contour in contours:
+        x, y, w, h = cv2.boundingRect(contour)
+        crop_frame = frame_sequence[0][y : y + h, x : x + w]
+
+        movement_matches.append(
+            {"bounding_rect": (x, y, w, h), "frame_slice": crop_frame}
+        )
+
+    return movement_matches
