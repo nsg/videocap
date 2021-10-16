@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cp /var/videocap/mask.jpg $SNAP_DATA
