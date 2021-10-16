@@ -27,7 +27,6 @@ def main():
     utils.write(path, middle_frame)
 
     if len(new_movements) > 0:
-        print(f"Found movement in {video_source}")
         sys.exit(Movements.FOUND)
     else:
         sys.exit(Movements.NOT_FOUND)

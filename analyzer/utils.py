@@ -111,7 +111,7 @@ def get_new_movements(
     store_movement_mask = cv2.add(store_movement_mask, movement_threshold)
     write(path, store_movement_mask, "mask")
 
-    threshold = cv2.dilate(old_movement_mask, None, iterations=2)
+    threshold = cv2.dilate(old_movement_mask, None, iterations=8)
     movement_mask = cv2.bitwise_or(
         movement_mask, movement_mask, mask=cv2.bitwise_not(threshold)
     )
