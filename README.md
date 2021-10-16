@@ -28,3 +28,5 @@ VIDEOCAP_DATA=foo/1/ python3 analyzer/analyzer.py ffmpeg_capture-0.mp4
 analyzer() { VIDEOCAP_DATA="${1%/*}" python3 analyzer/analyzer.py "${1##*/}"; }
 analyzer foo/1/ffmpeg_capture-0.mp4
 ```
+
+The above commands assume you have python3 and the packages specified in [analyzer/setup.py](analyzer/setup.py) installed.
