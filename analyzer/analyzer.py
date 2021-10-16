@@ -15,7 +15,7 @@ def main():
     video_source = f"{path}/{file}"
 
     capture_buffer = utils.capture_video(video_source)
-    middle_frame = capture_buffer[len(capture_buffer)//2]
+    middle_frame = capture_buffer[len(capture_buffer) // 2]
 
     # night_vision = utils.is_greyscale(first_frame)
     new_movements = utils.get_new_movements(capture_buffer, path)

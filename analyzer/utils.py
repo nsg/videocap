@@ -92,7 +92,9 @@ def get_movement_mask(frame_sequence: list, size=(480, 270)):
     return movement_mask
 
 
-def get_new_movements(frame_sequence: list, path, size=(270, 480), full_size=(1920, 1080)):
+def get_new_movements(
+    frame_sequence: list, path, size=(270, 480), full_size=(1920, 1080)
+):
     """
     Detect movements in a sequence of frames, return frame slices
 
