@@ -10,6 +10,11 @@ description: |
 grade: stable
 confinement: strict
 
+# TODO: Add arm64 when https://snapcraft.io/ffmpeg as released an arm64 package to stable
+architectures:
+  - build-on: [amd64, armhf]
+    run-on: [amd64, armhf]
+
 layout:
   /var/videocap:
     type: tmpfs
