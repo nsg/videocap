@@ -34,5 +34,7 @@ for camera in $(echo $RTSP_CAMERA_SOURCES | tr ',' ' '); do
     echo "Analyzer started for camera $camera ($SCORE_NAME)"
     while sleep 1; do
         analyzer "$(watch_for_new_file $RAMDISK/$SCORE_NAME)" "$SCORE_NAME"
-    done
+    done &
 done
+
+wait
