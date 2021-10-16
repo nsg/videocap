@@ -1,3 +1,4 @@
 /config.sh
 /foo
 *.snap
+__pycache__

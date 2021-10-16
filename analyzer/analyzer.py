@@ -1,43 +1,13 @@
 import sys
 import os
 import cv2
-import numpy
 import datetime
-
-
-def capture_video(file_path):
-    capture_buffer = []
-    cap = cv2.VideoCapture(file_path)
-
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        capture_buffer.append(frame)
-
-    cap.release()
-    return capture_buffer
-
-
-def get_norm_frame(buffer, offset):
-    size = (480, 270)
-    frame = buffer[offset]
-    frame = cv2.resize(frame, size)
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    frame = cv2.GaussianBlur(frame, (5, 5), 0)
-    return frame
-
-
-def avg_color(frame):
-    avgcol_f = numpy.average(frame, axis=0)
-    return numpy.average(avgcol_f, axis=0)
-
+import utils
 
 def diff_frames(CAPTURE_BUFFER, NIGHT_VISION, f1, f2, out_frame):
 
-    norm_frame1 = get_norm_frame(CAPTURE_BUFFER, f1)
-    norm_frame2 = get_norm_frame(CAPTURE_BUFFER, f2)
+    norm_frame1 = utils.get_norm_frame(CAPTURE_BUFFER, f1)
+    norm_frame2 = utils.get_norm_frame(CAPTURE_BUFFER, f2)
 
     frame1 = CAPTURE_BUFFER[f1]
     frame2 = CAPTURE_BUFFER[f2]
@@ -57,8 +27,8 @@ def diff_frames(CAPTURE_BUFFER, NIGHT_VISION, f1, f2, out_frame):
         crop_frame2 = frame2[y * 4 : y * 4 + h * 4, x * 4 : x * 4 + w * 4]
 
         if not NIGHT_VISION:
-            avg_color1 = avg_color(crop_frame1)
-            avg_color2 = avg_color(crop_frame2)
+            avg_color1 = utils.avg_color(crop_frame1)
+            avg_color2 = utils.avg_color(crop_frame2)
 
             color_channel_1 = avg_color1[0] - avg_color2[0]
             color_channel_2 = avg_color1[1] - avg_color2[1]
@@ -103,12 +73,12 @@ def main():
     FILE = sys.argv[1]
     FILEPATH = f"{PATH}/{FILE}"
 
-    CAPTURE_BUFFER = capture_video(FILEPATH)
+    CAPTURE_BUFFER = utils.capture_video(FILEPATH)
     CAPTURE_BUFFER_SIZE = len(CAPTURE_BUFFER)
 
     frame = CAPTURE_BUFFER[0]
 
-    avgcol = avg_color(frame)
+    avgcol = utils.avg_color(frame)
     if int(avgcol[0]) == int(avgcol[1]) and int(avgcol[0]) == int(avgcol[2]):
         NIGHT_VISION = True
     else:
