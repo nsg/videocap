@@ -111,11 +111,11 @@ def get_new_movements(
     frame_sequence: list, path, size=(270, 480), full_size=(1920, 1080)
 ):
     """
-    Detect movements in a sequence of frames, return frame slices
+    Detect new movements in a sequence of frames. A heatmap based mask
+    is used to filter out noise and repeating patterns.
 
-    This function detect movements in a frame and returns these sections of
-    the frame in a datastructure. These frames are later sent to extensions
-    to classify if these are something to care about or not.
+    Returns two masks ad a tuple. The first one is a mask with new
+    movements only. The second mask is the mask used to filter out movements.
     """
 
     black_img = numpy.full(size, 0, numpy.uint8)
@@ -124,17 +124,28 @@ def get_new_movements(
     store_movement_mask = cv2.addWeighted(old_movement_mask, 0.99, black_img, 0.01, 0)
     movement_threshold = cv2.threshold(movement_mask, 5, 255, cv2.THRESH_BINARY)[1]
     store_movement_mask = cv2.add(store_movement_mask, movement_threshold)
+    write(path, store_movement_mask, "mask")
 
-    # threshold = cv2.dilate(old_movement_mask, None, iterations=32)
     neg_old_movement_mask = cv2.bitwise_not(old_movement_mask)
-    neg_old_movement_mask = cv2.bitwise_or(
+    movement_mask = cv2.bitwise_or(
         movement_mask, movement_mask, mask=neg_old_movement_mask
     )
 
-    neg_old_movement_mask = cv2.resize(neg_old_movement_mask, full_size)
+    movement_mask = cv2.resize(movement_mask, full_size)
+    return (movement_mask, old_movement_mask)
+
+
+def get_matches(frame_sequence: list, path, full_size=(1920, 1080)):
+    """
+    Return a tuple, the first element contains a list of matches. Each match
+    is a dict with rectangles indicating a movement with a matching frame slice.
+    The second value in the tuple is the movement mask used to filter out movements.
+    """
+
+    new_movement_mask, filter_movement_mask = get_new_movements(frame_sequence, path)
 
     (contours, _) = cv2.findContours(
-        neg_old_movement_mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        new_movement_mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
     )
 
     movement_matches = []
@@ -147,6 +158,5 @@ def get_new_movements(
                 {"bounding_rect": (x, y, w, h), "frame_slice": crop_frame}
             )
 
-    write(path, store_movement_mask, "mask")
-
-    return (movement_matches, cv2.resize(store_movement_mask, full_size))
+    full_size_filter_movement_mask = cv2.resize(filter_movement_mask, full_size)
+    return (movement_matches, full_size_filter_movement_mask)
