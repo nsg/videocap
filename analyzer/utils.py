@@ -132,4 +132,4 @@ def get_new_movements(
                 {"bounding_rect": (x, y, w, h), "frame_slice": crop_frame}
             )
 
-    return movement_matches
+    return (movement_matches, cv2.resize(store_movement_mask, full_size))

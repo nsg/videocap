@@ -24,7 +24,10 @@ def main():
     middle_frame = capture_buffer[len(capture_buffer) // 2]
 
     # night_vision = utils.is_greyscale(first_frame)
-    new_movements = utils.get_new_movements(capture_buffer, working_dir)
+    new_movements, movement_mask = utils.get_new_movements(capture_buffer, working_dir)
+
+    movement_mask = cv2.applyColorMap(movement_mask, cv2.COLORMAP_HOT)
+    middle_frame = cv2.addWeighted(middle_frame, 0.75, movement_mask, 0.25, 0)
 
     for f in new_movements:
         x, y, w, h = f["bounding_rect"]
