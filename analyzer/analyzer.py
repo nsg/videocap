@@ -14,7 +14,11 @@ def main():
     file = sys.argv[1]
     camera = file.split("/")[0]
     video_source = f"{path}/{file}"
-    working_dir = f"{path}/{camera}"
+
+    if "mp4" in camera:
+        working_dir = f"{path}"
+    else:
+        working_dir = f"{path}/{camera}"
 
     capture_buffer = utils.capture_video(video_source)
     middle_frame = capture_buffer[len(capture_buffer) // 2]
