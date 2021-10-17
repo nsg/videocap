@@ -43,15 +43,17 @@ def is_greyscale(frame):
     return False
 
 
-def get_norm_frame(frame, small_frame_height, small_frame_width, blur=(5, 5)):
+def get_norm_frame(frame, blur=(5, 5)):
     """
     Returns a smaller, grayscale and blurry version of a frame
-    
+
     This is used mainly for movement matching, the blur will filter out
     noise. Colors are not needed for movements so they are removed.
     Finally the image is resized to make processing faster.
-    
     """
+
+    (frame_height, frame_width) = frame.shape[:2]
+    (small_frame_height, small_frame_width) = (frame_height // 4, frame_width // 4)
     frame = cv2.resize(frame, (small_frame_width, small_frame_height))
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     frame = cv2.GaussianBlur(frame, blur, 0)
@@ -71,15 +73,15 @@ def read(path, name="match", flag=cv2.IMREAD_UNCHANGED, default_content=None):
         return default_content
 
 
-def get_movement_mask(frame1, frame2, small_frame_height, small_frame_width):
+def get_movement_mask(frame1, frame2):
     """
     Detect movements between two frames
 
     Return a movement mask
     """
 
-    frame1 = get_norm_frame(frame1, small_frame_height, small_frame_width)
-    frame2 = get_norm_frame(frame2, small_frame_height, small_frame_width)
+    frame1 = get_norm_frame(frame1)
+    frame2 = get_norm_frame(frame2)
 
     frame_delta = cv2.absdiff(frame1, frame2)
     threshold = cv2.threshold(frame_delta, 25, 255, cv2.THRESH_BINARY)[1]
@@ -88,19 +90,19 @@ def get_movement_mask(frame1, frame2, small_frame_height, small_frame_width):
     return mask
 
 
-def get_movements_mask(frame_sequence: list, small_frame_height, small_frame_width):
+def get_movements_mask(frame_sequence: list, frame_height, frame_width):
     """
     Detect movements in a sequence of frames
 
-    Return a marged movement mask
+    Return a merged movement mask
     """
 
-    movement_mask = numpy.full((small_frame_height, small_frame_width), 0, numpy.uint8)
+    movement_mask = numpy.full((frame_height, frame_width), 0, numpy.uint8)
 
     for frame_number in range(0, len(frame_sequence) - 1):
         frame1 = frame_sequence[frame_number]
         frame2 = frame_sequence[frame_number + 1]
-        mask = get_movement_mask(frame1, frame2, small_frame_height, small_frame_width)
+        mask = get_movement_mask(frame1, frame2)
         movement_mask = cv2.bitwise_or(movement_mask, mask)
 
     return movement_mask
@@ -116,7 +118,7 @@ def get_new_movements(frame_sequence: list, path):
     """
 
     (frame_height, frame_width) = frame_sequence[0].shape[:2]
-    (small_frame_height, small_frame_width) = (frame_width // 4, frame_height // 4)
+    (small_frame_height, small_frame_width) = (frame_height // 4, frame_width // 4)
     black_img = numpy.full((small_frame_height, small_frame_width), 0, numpy.uint8)
     old_movement_mask = read(path, "mask", default_content=black_img)
     movement_mask = get_movements_mask(
