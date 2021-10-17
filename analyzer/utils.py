@@ -127,7 +127,7 @@ def get_new_movements(
         x, y, w, h = cv2.boundingRect(contour)
         crop_frame = frame_sequence[0][y : y + h, x : x + w]
 
-        if y > 40: # Ignore the timestamp
+        if y > 40:  # Ignore the timestamp
             movement_matches.append(
                 {"bounding_rect": (x, y, w, h), "frame_slice": crop_frame}
             )
