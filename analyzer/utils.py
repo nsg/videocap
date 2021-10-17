@@ -119,7 +119,9 @@ def get_new_movements(frame_sequence: list, path):
     (small_frame_height, small_frame_width) = (frame_width // 4, frame_height // 4)
     black_img = numpy.full((small_frame_height, small_frame_width), 0, numpy.uint8)
     old_movement_mask = read(path, "mask", default_content=black_img)
-    movement_mask = get_movements_mask(frame_sequence, small_frame_height, small_frame_width)
+    movement_mask = get_movements_mask(
+        frame_sequence, small_frame_height, small_frame_width
+    )
 
     write("/home/nsg/code/private/videocap/foo/movements/", movement_mask, "debug")
 
