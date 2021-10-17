@@ -71,23 +71,38 @@ def read(path, name="match", flag=cv2.IMREAD_UNCHANGED, default_content=None):
         return default_content
 
 
-def get_movement_mask(frame_sequence: list, size=(480, 270)):
+def get_movement_mask(frame1, frame2):
     """
-    Detect movements in a sequence of frames, return a movement mask
+    Detect movements between two frames
+
+    Return a movement mask
+    """
+
+    frame1 = get_norm_frame(frame1)
+    frame2 = get_norm_frame(frame2)
+
+    frame_delta = cv2.absdiff(frame1, frame2)
+    threshold = cv2.threshold(frame_delta, 25, 255, cv2.THRESH_BINARY)[1]
+    threshold = cv2.dilate(threshold, None, iterations=2)
+    frame = cv2.bitwise_and(frame_delta, frame_delta, mask=threshold)
+
+    return frame
+
+
+def get_movements_mask(frame_sequence: list, size=(480, 270)):
+    """
+    Detect movements in a sequence of frames
+
+    Return a marged movement mask
     """
 
     movement_mask = numpy.zeros(size, dtype="uint8")
 
     for frame_number in range(0, len(frame_sequence) - 1):
-        frame1 = get_norm_frame(frame_sequence[frame_number])
-        frame2 = get_norm_frame(frame_sequence[frame_number + 1])
-
-        frame_delta = cv2.absdiff(frame1, frame2)
-        threshold = cv2.threshold(frame_delta, 25, 255, cv2.THRESH_BINARY)[1]
-        threshold = cv2.dilate(threshold, None, iterations=2)
-        frame = cv2.bitwise_and(frame_delta, frame_delta, mask=threshold)
-
-        movement_mask = cv2.add(movement_mask, frame)
+        frame1 = frame_sequence[frame_number]
+        frame2 = frame_sequence[frame_number + 1]
+        mask = get_movement_mask(frame1, frame2)
+        movement_mask = cv2.add(movement_mask, mask)
 
     return movement_mask
 
@@ -105,21 +120,21 @@ def get_new_movements(
 
     black_img = numpy.full(size, 0, numpy.uint8)
     old_movement_mask = read(path, "mask", default_content=black_img)
-    movement_mask = get_movement_mask(frame_sequence, size)
+    movement_mask = get_movements_mask(frame_sequence, size)
     store_movement_mask = cv2.addWeighted(old_movement_mask, 0.99, black_img, 0.01, 0)
     movement_threshold = cv2.threshold(movement_mask, 5, 255, cv2.THRESH_BINARY)[1]
     store_movement_mask = cv2.add(store_movement_mask, movement_threshold)
-    write(path, store_movement_mask, "mask")
 
-    threshold = cv2.dilate(old_movement_mask, None, iterations=16)
-    movement_mask = cv2.bitwise_or(
-        movement_mask, movement_mask, mask=cv2.bitwise_not(threshold)
+    # threshold = cv2.dilate(old_movement_mask, None, iterations=32)
+    neg_old_movement_mask = cv2.bitwise_not(old_movement_mask)
+    neg_old_movement_mask = cv2.bitwise_or(
+        movement_mask, movement_mask, mask=neg_old_movement_mask
     )
 
-    movement_mask = cv2.resize(movement_mask, full_size)
+    neg_old_movement_mask = cv2.resize(neg_old_movement_mask, full_size)
 
     (contours, _) = cv2.findContours(
-        movement_mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        neg_old_movement_mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
     )
 
     movement_matches = []
@@ -131,5 +146,7 @@ def get_new_movements(
             movement_matches.append(
                 {"bounding_rect": (x, y, w, h), "frame_slice": crop_frame}
             )
+
+    write(path, store_movement_mask, "mask")
 
     return (movement_matches, cv2.resize(store_movement_mask, full_size))
