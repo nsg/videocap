@@ -124,16 +124,14 @@ def get_new_movements(frame_sequence: list, path):
     movement_mask = get_movements_mask(
         frame_sequence, small_frame_height, small_frame_width
     )
-
-    write("/home/nsg/code/private/videocap/foo/movements/", movement_mask, "debug")
-
     store_movement_mask = cv2.addWeighted(old_movement_mask, 0.99, black_img, 0.01, 0)
-    movement_threshold = cv2.threshold(movement_mask, 5, 255, cv2.THRESH_BINARY)[1]
-    store_movement_mask = cv2.add(store_movement_mask, movement_threshold)
+    store_movement_mask = cv2.bitwise_or(store_movement_mask, movement_mask)
     write(path, store_movement_mask, "mask")
 
+    old_movement_mask = cv2.threshold(old_movement_mask, 5, 255, cv2.THRESH_BINARY)[1]
     neg_old_movement_mask = cv2.bitwise_not(old_movement_mask)
-    movement_mask = cv2.bitwise_or(
+    movement_mask = cv2.threshold(movement_mask, 5, 255, cv2.THRESH_BINARY)[1]
+    movement_mask = cv2.bitwise_and(
         movement_mask, movement_mask, mask=neg_old_movement_mask
     )
 
