@@ -1,4 +1,20 @@
 #!/bin/bash
 
+DEBUG="$(snapctl get debug)"
+ANALYZER="$(snapctl get analyzer)"
+RECORDER="$(snapctl get recorder)"
+
+if [[ $DEBUG != "enabled" ]] && [[ $DEBUG != "disabled" ]]; then
+    snapctl set debug=disabled
+fi
+
+if [[ $ANALYZER != "enabled" ]] && [[ $ANALYZER != "disabled" ]]; then
+    snapctl set analyzer=disabled
+fi
+
+if [[ $RECORDER != "enabled" ]] && [[ $RECORDER != "disabled" ]]; then
+    snapctl set recorder=disabled
+fi
+
 snapctl restart videocap.analyzer-service
 snapctl restart videocap.recorder-service
