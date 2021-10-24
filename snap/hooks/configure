@@ -18,6 +18,3 @@ fi
 
 snapctl restart videocap.analyzer-service
 snapctl restart videocap.recorder-service
-
-# Clean up old files, remove this in the future
-rm -f $SNAP_COMMON/*.jpg $SNAP_COMMON/*.mp4
