@@ -33,18 +33,18 @@ Watch for file close events, fire of a piece of Python code that do the heavy li
 
 * Detect movements, mark them with a green square
 * Save movements in a heat map. Use is as a mask to filter out repeating movements
+* Require movement at 9-10% of the frames (over 10s) to get rid of noise
 * Blend the a frame from the video, the square and heat map to a image
 * The top 40 pixels are ignored (contains a timestamp)
 
 Future:
 
-* Require movement over several seconds to get rid of noise
-* Color matching heuristics (I had this in an earlier version)
+* Maybe: Color matching heuristics (I had this in an earlier version)
 * Face detection ("a face" not "who")
 * Merge movements from different video frames in to a single image for quick inspection
 
 ### Nextcloud
-Push the resulting image to a Nextcloud dropfolder. In the future the idea it to transmit the actual video.
+Push the resulting image to a Nextcloud File Drop. In the future the idea it to transmit the actual video.
 
 ## Install
 
@@ -54,10 +54,24 @@ sudo snap install videocap
 
 ### Configure
 
+Configure your cameras with a comma separated list like this:
+
+```
+sudo snap set videocap rtsp-camera-sources='127.0.0.1:5554/s0,10.0.0.1:1234/f1'
+```
+
+Enable recording and video analyzing
+
+```
+sudo snap set videocap recorder=enabled
+sudo snap set videocap analyzer=enabled
+```
+
+Setup your Nextcloud configuration, to get the token. Create a File Drop and copy the share link. The token is part of that URL.
+
 ```
 sudo snap set videocap nextcloud-server=nextcloud.example.com
 sudo snap set videocap nextcloud-token=hUio...
-sudo snap set videocap rtsp-camera-sources='127.0.0.1:5554/s0,10.0.0.1:1234/f1'
 ```
 
 ## Develop
@@ -76,3 +90,5 @@ analyzer foo/1/ffmpeg_capture-0.mp4
 ```
 
 The above commands assume you have python3 and the packages specified in [analyzer/setup.py](analyzer/setup.py) installed.
+
+Enable debug mode with `sudo snap set videocap debug=enabled`, that should store masks and jpegs in `$SNAP_COMMON` with movements in a directory called `movements`.
