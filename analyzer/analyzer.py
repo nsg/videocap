@@ -34,6 +34,8 @@ def main():
     for f in new_movements:
         x, y, w, h = f["bounding_rect"]
         cv2.rectangle(middle_frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        slice = cv2.addWeighted(middle_frame[y:y+h, x:x+w], 0.8, f['frame_slice'], 0.2, 0)
+        middle_frame[y:y+h, x:x+w] = slice
 
     utils.write(working_dir, middle_frame)
 
