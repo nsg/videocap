@@ -22,7 +22,9 @@ def main():
         working_dir = f"{path}/{camera}"
 
     capture_buffer = utils.capture_video(video_source)
+    first_frame = capture_buffer[0]
     middle_frame = capture_buffer[len(capture_buffer) // 2]
+    last_frame = capture_buffer[len(capture_buffer) - 1]
 
     # night_vision = utils.is_greyscale(first_frame)
     new_movements, movement_mask = utils.get_matches(capture_buffer, working_dir)
@@ -34,7 +36,8 @@ def main():
     for f in new_movements:
         x, y, w, h = f["bounding_rect"]
         cv2.rectangle(middle_frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        slice = cv2.addWeighted(middle_frame[y:y+h, x:x+w], 0.8, f['frame_slice'], 0.2, 0)
+        slice = cv2.addWeighted(middle_frame[y:y+h, x:x+w], 0.7, first_frame[y:y+h, x:x+w], 0.3, 0)
+        slice = cv2.addWeighted(middle_frame[y:y+h, x:x+w], 0.7, last_frame[y:y+h, x:x+w], 0.3, 0)
         middle_frame[y:y+h, x:x+w] = slice
 
     utils.write(working_dir, middle_frame)
