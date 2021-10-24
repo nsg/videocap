@@ -36,12 +36,12 @@ Watch for file close events, fire of a piece of Python code that do the heavy li
 * Require movement at 9-10% of the frames (over 10s) to get rid of noise
 * Blend the a frame from the video, the square and heat map to a image
 * The top 40 pixels are ignored (contains a timestamp)
+* Merge movements from first, middle and last frame in to a single image for quick inspection
 
 Future:
 
 * Maybe: Color matching heuristics (I had this in an earlier version)
 * Face detection ("a face" not "who")
-* Merge movements from different video frames in to a single image for quick inspection
 
 ### Nextcloud
 Push the resulting image to a Nextcloud File Drop. In the future the idea it to transmit the actual video.
