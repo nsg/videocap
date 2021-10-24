@@ -15,12 +15,14 @@ analyzer() {
     echo "ANALYZE: $file"
     if $SNAP/bin/analyzer "$file"; then
         echo "Found movement in $file, push image"
+
+        if [[ "$(snapctl get debug)" == "enabled" ]]; then
+            cp "$RAMDISK/$file" $RAMDISK/$camera/*.jpg $SNAP_COMMON
+        fi
+
         UNT="$(date +%s%N)"
         mv $RAMDISK/$camera/{match,$UNT}.jpg
         $SNAP/bin/push-nextcloud.sh $RAMDISK/$camera/$UNT.jpg && rm $RAMDISK/$camera/$UNT.jpg
-
-        # Save the last nine files that triggers movement for debug
-        cp "$RAMDISK/$file" $SNAP_COMMON
     fi
 }
 
