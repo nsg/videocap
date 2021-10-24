@@ -1,6 +1,7 @@
 import sys
 import os
 import cv2
+import numpy
 import utils
 
 
@@ -26,8 +27,9 @@ def main():
     # night_vision = utils.is_greyscale(first_frame)
     new_movements, movement_mask = utils.get_matches(capture_buffer, working_dir)
 
-    movement_mask = cv2.applyColorMap(movement_mask, cv2.COLORMAP_HOT)
-    middle_frame = cv2.addWeighted(middle_frame, 0.75, movement_mask, 0.25, 0)
+    red_img = numpy.zeros((*movement_mask.shape, 3), numpy.uint8)
+    red_img[:,:,2] = movement_mask
+    middle_frame = cv2.addWeighted(middle_frame, 0.75, red_img, 0.25, 0)
 
     for f in new_movements:
         x, y, w, h = f["bounding_rect"]
