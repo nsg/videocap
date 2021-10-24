@@ -97,14 +97,15 @@ def get_movements_mask(frame_sequence: list, frame_height, frame_width):
     Return a merged movement mask
     """
 
-    movement_mask = numpy.full((frame_height, frame_width), 0, numpy.uint8)
     number_of_frames = len(frame_sequence) - 1
+    first_frame = frame_sequence[0]
+    middle_frame = frame_sequence[number_of_frames // 2]
+    last_frame = frame_sequence[number_of_frames]
 
-    for frame_number in range(0, number_of_frames):
-        frame1 = frame_sequence[frame_number]
-        frame2 = frame_sequence[frame_number + 1]
-        mask = get_movement_mask(frame1, frame2) // number_of_frames
-        movement_mask = movement_mask + mask
+    first_half_mask = get_movement_mask(first_frame, middle_frame) // 3
+    last_half_mask = get_movement_mask(middle_frame, last_frame) // 3
+    full_mask = get_movement_mask(first_frame, last_frame) // 3
+    movement_mask = first_half_mask + last_half_mask + full_mask
 
     return movement_mask
 
