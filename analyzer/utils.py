@@ -125,7 +125,8 @@ def get_new_movements(frame_sequence: list, path):
         frame_sequence, small_frame_height, small_frame_width
     )
     store_movement_mask = cv2.addWeighted(old_movement_mask, 0.99, black_img, 0.01, 0)
-    store_movement_mask = cv2.bitwise_or(store_movement_mask, movement_mask)
+    dilated_movement_mask = cv2.dilate(movement_mask, None, iterations=4)
+    store_movement_mask = cv2.bitwise_or(store_movement_mask, dilated_movement_mask)
     write(path, store_movement_mask, "mask")
 
     old_movement_mask = cv2.threshold(old_movement_mask, 5, 255, cv2.THRESH_BINARY)[1]
