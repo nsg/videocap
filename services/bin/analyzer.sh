@@ -25,6 +25,7 @@ analyzer() {
         UNT="$(date +%s%N)"
         mv $RAMDISK/$camera/{match,$UNT}.jpg
         $SNAP/bin/push-nextcloud.sh $RAMDISK/$camera/$UNT.jpg && rm $RAMDISK/$camera/$UNT.jpg
+        $SNAP/bin/push-nextcloud.sh $RAMDISK/$file
     elif [[ "$(snapctl get debug)" == "enabled" ]]; then
         echo "[DEBUG] Save jpegs to $SNAP_COMMON"
         cp $RAMDISK/$camera/*.jpg $SNAP_COMMON
