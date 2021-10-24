@@ -17,12 +17,17 @@ analyzer() {
         echo "Found movement in $file, push image"
 
         if [[ "$(snapctl get debug)" == "enabled" ]]; then
-            cp "$RAMDISK/$file" $RAMDISK/$camera/*.jpg $SNAP_COMMON
+            mkdir -p $SNAP_COMMON/movements
+            echo "[DEBUG] Save video and jpegs to $SNAP_COMMON/movements"
+            cp "$RAMDISK/$file" $RAMDISK/$camera/*.jpg $SNAP_COMMON/movements
         fi
 
         UNT="$(date +%s%N)"
         mv $RAMDISK/$camera/{match,$UNT}.jpg
         $SNAP/bin/push-nextcloud.sh $RAMDISK/$camera/$UNT.jpg && rm $RAMDISK/$camera/$UNT.jpg
+    elif [[ "$(snapctl get debug)" == "enabled" ]]; then
+        echo "[DEBUG] Save jpegs to $SNAP_COMMON"
+        cp $RAMDISK/$camera/*.jpg $SNAP_COMMON
     fi
 }
 
