@@ -59,8 +59,19 @@ def main(args):
             frame_buffer.append(frame.copy())
             frame_buffer.pop(0)
 
-            ret, contours = detect_movement(frame_buffer[9], frame_buffer[19], movement_limit)
-            cv2.putText(frame, str(int(movement_level)), (width-100, height-50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+            ret, contours = detect_movement(
+                frame_buffer[9], frame_buffer[19], movement_limit
+            )
+            cv2.putText(
+                frame,
+                str(int(movement_level)),
+                (width - 100, height - 50),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (255, 0, 0),
+                2,
+                cv2.LINE_AA,
+            )
             if ret:
                 movement_level += increase_movement_value
 
@@ -68,7 +79,6 @@ def main(args):
                     color = (0, 255, 0)
                 else:
                     color = (0, 0, 255)
-
 
                 for c in contours:
                     (x, y, w, h) = cv2.boundingRect(c)
@@ -97,9 +107,7 @@ if __name__ == "__main__":
     ap.add_argument(
         "--trigger-movement", type=float, default=50, help="Trigger movement level"
     )
-    ap.add_argument(
-        "--movement-limit", type=float, default=25, help="Movement lower"
-    )
+    ap.add_argument("--movement-limit", type=float, default=25, help="Movement lower")
     ap.add_argument(
         "--output",
         type=str,
