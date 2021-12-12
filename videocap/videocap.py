@@ -25,7 +25,21 @@ def detect_movement(frame1, frame2, movement_limit):
     return (len(contours) > 0, contours)
 
 
-def main(args):
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "--trigger-movement", type=float, default=50, help="Trigger movement level"
+    )
+    ap.add_argument("--movement-limit", type=float, default=25, help="Movement lower")
+    ap.add_argument(
+        "--output",
+        type=str,
+        default="output",
+        help="Name of output file with movements",
+    )
+    ap.add_argument("--camera", type=str, required=True, help="Video Source")
+    args = ap.parse_args()
+
     trigger_movement_level = args.trigger_movement
     movement_limit = args.movement_limit
     increase_movement_value = 1.0
@@ -96,22 +110,10 @@ def main(args):
             elif movement_level < 0:
                 movement_level = 0
 
-            #cv2.imshow("VIDEO", frame)
+            # cv2.imshow("VIDEO", frame)
         cv2.waitKey(1)
         frame_number += 1
 
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser()
-    ap.add_argument(
-        "--trigger-movement", type=float, default=50, help="Trigger movement level"
-    )
-    ap.add_argument("--movement-limit", type=float, default=25, help="Movement lower")
-    ap.add_argument(
-        "--output",
-        type=str,
-        default="output",
-        help="Name of output file with movements",
-    )
-    ap.add_argument("--camera", type=str, required=True, help="Video Source")
-    main(ap.parse_args())
+    main()

@@ -1,4 +1,5 @@
 /config.sh
-/foo
+/.env
 *.snap
+*.avi
 __pycache__

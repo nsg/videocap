@@ -1,10 +1,1 @@
 #!/bin/bash
-
-RTSP_CAMERA_SOURCES="$(snapctl get rtsp-camera-sources)"
-for camera in $(echo $RTSP_CAMERA_SOURCES | tr ',' ' '); do
-    SCORE_NAME="$(echo $camera | sed 's/[^a-z0-9]/_/g')"
-    if [ -e $SNAP_DATA/$SCORE_NAME/mask.jpg ]; then
-        mkdir -p /var/videocap/$SCORE_NAME
-        cp $SNAP_DATA/$SCORE_NAME/mask.jpg /var/videocap/$SCORE_NAME
-    fi
-done

@@ -8,13 +8,7 @@ if [[ $DEBUG != "enabled" ]] && [[ $DEBUG != "disabled" ]]; then
     snapctl set debug=disabled
 fi
 
-if [[ $ANALYZER != "enabled" ]] && [[ $ANALYZER != "disabled" ]]; then
-    snapctl set analyzer=disabled
-fi
+snapctl unset analyzer
+snapctl unset recorder
 
-if [[ $RECORDER != "enabled" ]] && [[ $RECORDER != "disabled" ]]; then
-    snapctl set recorder=disabled
-fi
-
-snapctl restart videocap.analyzer-service
-snapctl restart videocap.recorder-service
+snapctl restart videocap.videocap-service

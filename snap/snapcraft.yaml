@@ -1,6 +1,6 @@
 name: videocap
 base: core20
-version: '0.1'
+version: '0.2'
 summary: Capture and detect movements on video feeds
 description: |
   This is my take of a simple video monitoring solution. The scope of the
@@ -20,54 +20,21 @@ layout:
     type: tmpfs
 
 apps:
-  analyzer:
-    command: bin/analyzer
-    environment:
-      ANALYZER: enabled
-      VIDEOCAP_DATA: /var/videocap
-
-  analyzer-service:
-    command: bin/analyzer.sh
+  videocap-service:
+    command: bin/videocap.sh
     daemon: simple
     environment:
       VIDEOCAP_DATA: /var/videocap
-    plugs:
-      - network
-
-  ingest:
-    command: bin/ingest.sh
-    environment:
-      VIDEOCAP_DATA: /var/videocap
-
-  push-nextcloud:
-    command: bin/push-nextcloud.sh
-    plugs:
-      - network
-
-  recorder:
-    command: bin/recorder.sh
-    environment:
-      RECORDER: enabled
-    plugs:
-      - network
-
-  recorder-service:
-    command: bin/recorder.sh
-    daemon: simple
     plugs:
       - network
 
 parts:
-  analyzer:
+  videocap:
     plugin: python
-    source: analyzer
+    source: videocap
     stage-packages:
       - libice6
       - libsm6
-
-  ingest:
-    plugin: dump
-    source: ingest
 
   nextcloud:
     plugin: dump
