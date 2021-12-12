@@ -25,7 +25,7 @@ def detect_movement(frame1, frame2, movement_limit):
     return (len(contours) > 0, contours)
 
 
-def main():
+def main(interactive=False):
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "--trigger-movement", type=float, default=50, help="Trigger movement level"
@@ -54,12 +54,10 @@ def main():
     height_4 = int(height / 4)
     fps = int(vcap.get(cv2.CAP_PROP_FPS))
     fps_8 = int(fps / 8)
+    skip_frames = 1
 
     fourcc = cv2.VideoWriter_fourcc("M", "J", "P", "G")
-    out_full = cv2.VideoWriter(f"{args.output}-full.avi", fourcc, fps, (width, height))
-    out_low = cv2.VideoWriter(
-        f"{args.output}-low.avi", fourcc, fps_8, (width_4, height_4)
-    )
+    out_full = cv2.VideoWriter(f"{args.output}.avi", fourcc, fps, (width, height))
 
     # A buffer of the last 20 frames
     frame_buffer = []
@@ -72,7 +70,7 @@ def main():
             frame_buffer.append(frame.copy())
             frame_buffer.pop(0)
 
-            ret, contours = detect_movement(
+            has_movement, contours = detect_movement(
                 frame_buffer[9], frame_buffer[19], movement_limit
             )
             cv2.putText(
@@ -85,13 +83,18 @@ def main():
                 2,
                 cv2.LINE_AA,
             )
-            if ret:
-                movement_level += increase_movement_value
-
+            if has_movement:
                 if movement_level > trigger_movement_level:
                     color = (0, 255, 0)
+                    skip_frames = 1
                 else:
                     color = (0, 0, 255)
+                    curframe = vcap.get(cv2.CAP_PROP_POS_FRAMES)
+                    skip_to_frame = curframe + fps * 2
+                    skip_frames = 5
+                    vcap.set(cv2.CAP_PROP_POS_FRAMES, skip_to_frame)
+
+                movement_level += increase_movement_value * skip_frames
 
                 for c in contours:
                     (x, y, w, h) = cv2.boundingRect(c)
@@ -101,19 +104,17 @@ def main():
 
             if movement_level > trigger_movement_level:
                 out_full.write(frame)
-                if frame_number % 8 == 0:
-                    frame_4 = cv2.resize(frame, (int(width / 4), int(height / 4)))
-                    out_low.write(frame_4)
 
             if movement_level > 0:
-                movement_level -= decrease_movement_value
+                movement_level -= decrease_movement_value * skip_frames
             elif movement_level < 0:
                 movement_level = 0
 
-            # cv2.imshow("VIDEO", frame)
+            if interactive:
+                cv2.imshow("VIDEO", frame)
         cv2.waitKey(1)
         frame_number += 1
 
 
 if __name__ == "__main__":
-    main()
+    main(interactive=True)
