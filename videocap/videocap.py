@@ -10,7 +10,6 @@ def gray_blur(frame):
     frame = cv2.resize(frame, (width_4, height_4))
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (15, 15), 0)
-    cv2.imshow("GRAY", gray)
     return gray
 
 
@@ -97,7 +96,7 @@ def main(args):
             elif movement_level < 0:
                 movement_level = 0
 
-            cv2.imshow("VIDEO", frame)
+            #cv2.imshow("VIDEO", frame)
         cv2.waitKey(1)
         frame_number += 1
 
