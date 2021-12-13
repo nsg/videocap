@@ -1,4 +1,4 @@
-import time
+import datetime
 import argparse
 import cv2
 import numpy
@@ -23,6 +23,10 @@ def detect_movement(frame1, frame2, movement_limit):
     )
 
     return (len(contours) > 0, contours)
+
+
+def get_hour():
+    return datetime.datetime.now().hour
 
 
 def main(interactive=False):
@@ -55,6 +59,7 @@ def main(interactive=False):
     fps = int(vcap.get(cv2.CAP_PROP_FPS))
     fps_8 = int(fps / 8)
     skip_frames = 1
+    start_hour = get_hour()
 
     fourcc = cv2.VideoWriter_fourcc("M", "J", "P", "G")
     out_full = cv2.VideoWriter(f"{args.output}.avi", fourcc, fps, (width, height))
@@ -64,7 +69,7 @@ def main(interactive=False):
     for i in range(0, 20):
         frame_buffer.append(numpy.full((height, width, 3), 0, numpy.uint8))
 
-    while True:
+    while start_hour == get_hour():
         ret, frame = vcap.read()
         if ret:
             frame_buffer.append(frame.copy())
@@ -95,6 +100,8 @@ def main(interactive=False):
                     vcap.set(cv2.CAP_PROP_POS_FRAMES, skip_to_frame)
 
                 movement_level += increase_movement_value * skip_frames
+                if movement_level > trigger_movement_level * 2:
+                    movement_level = trigger_movement_level * 2
 
                 for c in contours:
                     (x, y, w, h) = cv2.boundingRect(c)
