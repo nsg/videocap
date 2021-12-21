@@ -39,7 +39,10 @@ while [ 1 ]; do
         echo "Filename $FILENAME"
 
         clean_files "$STORDIR"
-        $SNAP/bin/videocap --camera "$CAMERA" --output "$STORDIR/$FILENAME" &
+        (
+            $SNAP/bin/videocap --camera "$CAMERA" --output "$STORDIR/$FILENAME"
+            $SNAP/bin/push-nextcloud.sh "$STORDIR/$FILENAME.avi"
+        ) &
     done
     wait
 done
