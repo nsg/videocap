@@ -21,6 +21,7 @@ clean_files() {
     fi
 
     find $1 -type f -mtime +1 -delete
+    find $1 -type f -size -32k
 }
 
 while [ 1 ]; do
