@@ -5,7 +5,9 @@ die() {
     exit 1
 }
 
-DISK_USAGE_LIMIT=512
+DISK_USAGE_LIMIT_MB=512
+VIDEO_SAVE_DAYS=1
+VIDEO_REMOVE_SMALLER_THAN=32k
 RTSP_CAMERA_SOURCES="$(snapctl get rtsp-camera-sources)"
 
 if [ -z "$RTSP_CAMERA_SOURCES" ]; then
@@ -14,14 +16,14 @@ fi
 
 clean_files() {
     DISK_USAGE="$(du -ms $SNAP_COMMON | cut -f1)"
-    if [[ $DISK_USAGE -gt $DISK_USAGE_LIMIT ]]; then
+    if [[ $DISK_USAGE -gt $DISK_USAGE_LIMIT_MB ]]; then
         REMOVE="$(ls -t $1 | tail -1)"
         echo "Remove: $REMOVE"
         rm "$1/$REMOVE"
     fi
 
-    find $1 -type f -mtime +1 -delete
-    find $1 -type f -size -32k
+    find $1 -type f -mtime +${VIDEO_SAVE_DAYS} -delete
+    find $1 -type f -size -${VIDEO_REMOVE_SMALLER_THAN}
 }
 
 while [ 1 ]; do
