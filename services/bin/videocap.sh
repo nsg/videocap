@@ -23,7 +23,7 @@ clean_files() {
     fi
 
     find $1 -type f -mtime +${VIDEO_SAVE_DAYS} -delete
-    find $1 -type f -size -${VIDEO_REMOVE_SMALLER_THAN}
+    find $1 -type f -size -${VIDEO_REMOVE_SMALLER_THAN} -delete
 }
 
 while [ 1 ]; do
