@@ -28,6 +28,12 @@ apps:
     plugs:
       - network
 
+  nextcloud-service:
+    command: bin/nextcloud.sh
+    daemon: simple
+    plugs:
+      - network
+
 parts:
   videocap:
     plugin: python
