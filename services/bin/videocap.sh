@@ -40,8 +40,9 @@ while [ 1 ]; do
 
         clean_files "$STORDIR"
         (
+            cd $STORDIR
             $SNAP/bin/videocap --camera "$CAMERA" --output "$STORDIR/$FILENAME"
-            $SNAP/bin/push-nextcloud.sh "$STORDIR/$FILENAME.avi"
+            $SNAP/bin/push-nextcloud.sh "$FILENAME.avi"
         ) &
     done
     wait
