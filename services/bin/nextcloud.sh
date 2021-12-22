@@ -5,6 +5,8 @@ die() {
     exit 1
 }
 
+RTSP_CAMERA_SOURCES="$(snapctl get rtsp-camera-sources)"
+
 while [ 1 ]; do
     for CAMERA in $(echo $RTSP_CAMERA_SOURCES | tr ',' ' '); do
         CAMERA_FILTERED=${CAMERA/*@}
