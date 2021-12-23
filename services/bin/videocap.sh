@@ -17,9 +17,12 @@ fi
 clean_files() {
     DISK_USAGE="$(du -ms $SNAP_COMMON | cut -f1)"
     if [[ $DISK_USAGE -gt $DISK_USAGE_LIMIT_MB ]]; then
-        REMOVE="$(ls -t $1 | tail -1)"
-        echo "Remove: $REMOVE"
-        rm "$1/$REMOVE"
+        NUM_FILES="$(ls $1 | wc -l)"
+        LAST_FILE="$(ls -t $1 | tail -1)"
+        if [[ $NUM_FILES -gt 1 ]]; then
+            echo "Remove: $LAST_FILE"
+            rm "$1/$LAST_FILE"
+        fi
     fi
 
     find $1 -type f -mtime +${VIDEO_SAVE_DAYS} -delete -print
