@@ -33,11 +33,6 @@ while [ 1 ]; do
         STORDIR="$SNAP_COMMON/$SCORE_NAME"
         FILENAME="$(date +%F_%H)"
         mkdir -p "$STORDIR"
-
-        echo "Camera $CAMERA_FILTERED found"
-        echo "Movements will be stored to $STORDIR"
-        echo "Filename $FILENAME"
-
         clean_files "$STORDIR"
         $SNAP/bin/videocap --camera "$CAMERA" --output "$STORDIR/$FILENAME" &
     done
