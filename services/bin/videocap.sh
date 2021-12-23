@@ -22,8 +22,8 @@ clean_files() {
         rm "$1/$REMOVE"
     fi
 
-    find $1 -type f -mtime +${VIDEO_SAVE_DAYS} -delete
-    find $1 -type f -size -${VIDEO_REMOVE_SMALLER_THAN} -delete
+    find $1 -type f -mtime +${VIDEO_SAVE_DAYS} -delete -print
+    find $1 -type f -size -${VIDEO_REMOVE_SMALLER_THAN} -delete -print
 }
 
 while [ 1 ]; do
