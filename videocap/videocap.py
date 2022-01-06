@@ -69,7 +69,7 @@ def main(interactive=False):
     for i in range(0, 20):
         frame_buffer.append(numpy.full((height, width, 3), 0, numpy.uint8))
 
-    while start_hour == get_hour():
+    while start_hour == get_hour() and vcap.isOpened():
         ret, frame = vcap.read()
         if ret:
             frame_buffer.append(frame.copy())

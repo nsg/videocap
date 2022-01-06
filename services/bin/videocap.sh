@@ -30,6 +30,7 @@ clean_files() {
 }
 
 while [ 1 ]; do
+    START_TS="$(date +%s)"
     for CAMERA in $(echo $RTSP_CAMERA_SOURCES | tr ',' ' '); do
         CAMERA_FILTERED=${CAMERA/*@}
         SCORE_NAME="$(echo $CAMERA_FILTERED | sed 's/[^a-z0-9]/_/g')"
@@ -37,7 +38,13 @@ while [ 1 ]; do
         FILENAME="$(date +%F_%H)"
         mkdir -p "$STORDIR"
         clean_files "$STORDIR"
+        echo "Start camera $CAMERA"
         $SNAP/bin/videocap --camera "$CAMERA" --output "$STORDIR/$FILENAME" &
     done
     wait
+    END_TS="$(date +%s)"
+    if [[ $(($END_TS - $START_TS )) -lt 60 ]]; then
+        echo "Last run took less than 60s, backoff and sleep for 60s"
+        sleep 60
+    fi
 done
